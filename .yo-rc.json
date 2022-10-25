@@ -1,0 +1,16 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "version": "1.15.2",
+    "libraryName": "news-list",
+    "libraryId": "ff3cdec3-1d91-4573-96d0-02b67b70c10f",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "NewsList",
+    "solutionShortDescription": "NewsList description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
