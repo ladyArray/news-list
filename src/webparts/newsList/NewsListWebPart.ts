@@ -32,15 +32,41 @@ export default class NewsListWebPart extends BaseClientSideWebPart<INewsListWebP
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = "";
 
+  private _themeProvider: ThemeProvider;
+  private _themeVariant: IReadonlyTheme | undefined;
+  private _handleThemeChangedEvent: IReadonlyTheme | undefined;
+
+  protected async onInit(): Promise<void> {
+    await super.onInit();
+
+    sp.setup(this.context);
+    this._themeProvider = this.context.serviceScope.consume(
+      ThemeProvider.serviceKey
+    );
+    this._themeVariant = this._themeProvider.tryGetTheme();
+    this._themeProvider.themeChangedEvent.add(
+      this,
+      this._handleThemeChangedEvent
+    );
+  }
+
+  private _handleThemeChangedEvent(args: ThemeChangedEventArgs): void {
+    this._themeVariant = args.theme;
+    this.render();
+  }
+
   public render(): void {
     const element: React.ReactElement<INewsListProps> = React.createElement(
       NewsList,
       {
+        title: this.properties.title,
         description: this.properties.description,
         isDarkTheme: this._isDarkTheme,
+        themeVariant: this._themeVariant,
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
+        context: this.context,
       }
     );
 
