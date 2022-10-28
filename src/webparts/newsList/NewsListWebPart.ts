@@ -6,67 +6,43 @@ import {
   PropertyPaneTextField,
 } from "@microsoft/sp-property-pane";
 import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
+import { IReadonlyTheme } from "@microsoft/sp-component-base";
 
 import * as strings from "NewsListWebPartStrings";
 import NewsList from "./components/NewsList";
 import { INewsListProps } from "./components/INewsListProps";
 
-import { sp } from "@pnp/sp/presets/all";
 import {
   PropertyFieldListPicker,
   PropertyFieldListPickerOrderBy,
-} from "@pnp/spfx-property-controls";
-
-import {
-  ThemeProvider,
-  ThemeChangedEventArgs,
-  IReadonlyTheme,
-} from "@microsoft/sp-component-base";
+} from "@pnp/spfx-property-controls/lib/PropertyFieldListPicker";
 
 export interface INewsListWebPartProps {
-  title: string;
   description: string;
+  list: string;
+  title: string;
 }
 
 export default class NewsListWebPart extends BaseClientSideWebPart<INewsListWebPartProps> {
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = "";
 
-  private _themeProvider: ThemeProvider;
-  private _themeVariant: IReadonlyTheme | undefined;
-  private _handleThemeChangedEvent: IReadonlyTheme | undefined;
-
-  protected async onInit(): Promise<void> {
-    await super.onInit();
-
-    sp.setup(this.context);
-    this._themeProvider = this.context.serviceScope.consume(
-      ThemeProvider.serviceKey
-    );
-    this._themeVariant = this._themeProvider.tryGetTheme();
-    this._themeProvider.themeChangedEvent.add(
-      this,
-      this._handleThemeChangedEvent
-    );
-  }
-
-  private _handleThemeChangedEvent(args: ThemeChangedEventArgs): void {
-    this._themeVariant = args.theme;
-    this.render();
-  }
-
   public render(): void {
     const element: React.ReactElement<INewsListProps> = React.createElement(
       NewsList,
       {
-        title: this.properties.title,
         description: this.properties.description,
         isDarkTheme: this._isDarkTheme,
-        themeVariant: this._themeVariant,
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
         context: this.context,
+        listGuid: this.properties.list,
+        title: this.properties.title,
+        displayMode: this.displayMode,
+        updateProperty: (value: string) => {
+          this.properties.title = value;
+        },
       }
     );
 
@@ -134,6 +110,20 @@ export default class NewsListWebPart extends BaseClientSideWebPart<INewsListWebP
               groupFields: [
                 PropertyPaneTextField("description", {
                   label: strings.DescriptionFieldLabel,
+                }),
+
+                PropertyFieldListPicker("list", {
+                  label: "Select a list",
+                  selectedList: this.properties.list,
+                  includeHidden: false,
+                  orderBy: PropertyFieldListPickerOrderBy.Title,
+                  disabled: false,
+                  onPropertyChange: this.onPropertyPaneFieldChanged.bind(this),
+                  properties: this.properties,
+                  context: this.context as any,
+                  onGetErrorMessage: null,
+                  deferredValidationTime: 0,
+                  key: "listPickerFieldId",
                 }),
               ],
             },

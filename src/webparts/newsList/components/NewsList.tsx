@@ -1,43 +1,86 @@
-import * as React from 'react';
-import styles from './NewsList.module.scss';
-import { INewsListProps } from './INewsListProps';
-import { escape } from '@microsoft/sp-lodash-subset';
+import * as React from "react";
+import styles from "./NewsList.module.scss";
+import { INewsListProps } from "./INewsListProps";
+import { escape } from "@microsoft/sp-lodash-subset";
+import { SPFI } from "@pnp/sp";
+import { useEffect, useState } from "react";
+import { INewsList } from "../../../interface";
+import { getSP } from "../../../pnpjsConfig";
+import { Accordion } from "@pnp/spfx-controls-react/lib/Accordion";
+import { Placeholder } from "@pnp/spfx-controls-react/lib/Placeholder";
+import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
 
-export default class NewsList extends React.Component<INewsListProps, {}> {
-  public render(): React.ReactElement<INewsListProps> {
-    const {
-      description,
-      isDarkTheme,
-      environmentMessage,
-      hasTeamsContext,
-      userDisplayName
-    } = this.props;
+const NewsList = (props: INewsListProps) => {
+  const LOG_SOURCE = "NewsList Webpart";
+  const LIST_NAME = "Noticias";
+  const _sp: SPFI = getSP(props.context);
 
-    return (
-      <section className={`${styles.newsList} ${hasTeamsContext ? styles.teams : ''}`}>
-        <div className={styles.welcome}>
-          <img alt="" src={isDarkTheme ? require('../assets/welcome-dark.png') : require('../assets/welcome-light.png')} className={styles.welcomeImage} />
-          <h2>Well done, {escape(userDisplayName)}!</h2>
-          <div>{environmentMessage}</div>
-          <div>Web part property value: <strong>{escape(description)}</strong></div>
-        </div>
-        <div>
-          <h3>Welcome to SharePoint Framework!</h3>
-          <p>
-            The SharePoint Framework (SPFx) is a extensibility model for Microsoft Viva, Microsoft Teams and SharePoint. It&#39;s the easiest way to extend Microsoft 365 with automatic Single Sign On, automatic hosting and industry standard tooling.
-          </p>
-          <h4>Learn more about SPFx development:</h4>
-          <ul className={styles.links}>
-            <li><a href="https://aka.ms/spfx" target="_blank" rel="noreferrer">SharePoint Framework Overview</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-graph" target="_blank" rel="noreferrer">Use Microsoft Graph in your solution</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-teams" target="_blank" rel="noreferrer">Build for Microsoft Teams using SharePoint Framework</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-viva" target="_blank" rel="noreferrer">Build for Microsoft Viva Connections using SharePoint Framework</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-store" target="_blank" rel="noreferrer">Publish SharePoint Framework applications to the marketplace</a></li>
-            <li><a href="https://aka.ms/spfx-yeoman-api" target="_blank" rel="noreferrer">SharePoint Framework API reference</a></li>
-            <li><a href="https://aka.ms/m365pnp" target="_blank" rel="noreferrer">Microsoft 365 Developer Community</a></li>
-          </ul>
-        </div>
-      </section>
+  const [NewsListItems, setNewsListItems] = useState<INewsList[]>([]);
+
+  const getNewsListItems = async () => {
+    console.log("context", _sp);
+
+    /*const items = this._sp.web.lists.getByTitle(this.LIST_NAME).items.select("*", "Responsable/Title", "Responsable/ID").expand("Responsable")().then((value: any) => {
+        console.log("Noticias: ",value);
+        this.initializeVariables(value);
+      });*/
+
+    const items = _sp.web.lists
+      .getById(props.listGuid)
+      .items.select("Title", "Responsable/Title", "Responsable/ID")
+      .expand("Responsable")();
+
+    console.log("NewsList Items", items);
+
+    setNewsListItems(
+      (await items).map((item: any) => {
+        return {
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          category: item.category,
+          publicationDate: item.publicationDate,
+          responsible: item.responsable,
+          image: item.image.url,
+        };
+      })
     );
-  }
-}
+  };
+
+  useEffect(() => {
+    console.log("props", props);
+
+    if (props.listGuid && props.listGuid != "") {
+      getNewsListItems;
+    }
+  }, [props]);
+
+  return (
+    <>
+      <WebPartTitle
+        displayMode={props.displayMode}
+        title={props.title}
+        updateProperty={props.updateProperty}
+      />
+      {props.listGuid ? (
+        NewsListItems.map((o: INewsList, index: number) => {
+          return (
+            <Accordion key={index} title={o.title} defaultCollapsed={true}>
+              {o.description}
+            </Accordion>
+          );
+        })
+      ) : (
+        <Placeholder
+          iconName="Edit"
+          iconText="Configure your web part"
+          description="Please configure the web part."
+          buttonLabel="Configure"
+          onConfigure={() => props.context.propertyPane.open()}
+        />
+      )}
+    </>
+  );
+};
+
+export default NewsList;
