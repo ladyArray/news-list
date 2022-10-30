@@ -1,4 +1,4 @@
-# news-list (Taller 3)
+# news-list
 
 ## Summary
 
