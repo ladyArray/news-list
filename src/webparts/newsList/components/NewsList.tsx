@@ -9,76 +9,83 @@ import { getSP } from "../../../pnpjsConfig";
 import { Accordion } from "@pnp/spfx-controls-react/lib/Accordion";
 import { Placeholder } from "@pnp/spfx-controls-react/lib/Placeholder";
 import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
+import { Item } from "@pnp/sp/items";
 
 const NewsList = (props: INewsListProps) => {
-  const LOG_SOURCE = "NewsList Webpart";
+  console.log("montando componente");
+  // console.log(props);
+  const { context, listGuid, title, description } = props;
+  //const LOG_SOURCE = "NewsList Webpart";
   const LIST_NAME = "Noticias";
-  const _sp: SPFI = getSP(props.context);
+  const _sp: SPFI = getSP(context);
 
-  const [NewsListItems, setNewsListItems] = useState<INewsList[]>([]);
+  const [news, setNews] = useState<INewsList[]>([]);
 
-  const getNewsListItems = async () => {
-    console.log("context", _sp);
+  const getNews = async (listGuid: string) => {
+    //console.log("context", _sp);
 
     /*const items = this._sp.web.lists.getByTitle(this.LIST_NAME).items.select("*", "Responsable/Title", "Responsable/ID").expand("Responsable")().then((value: any) => {
         console.log("Noticias: ",value);
         this.initializeVariables(value);
       });*/
 
-    const items = _sp.web.lists
+    /*const items = _sp.web.lists
       .getById(props.listGuid)
       .items.select("Title", "Responsable/Title", "Responsable/ID")
-      .expand("Responsable")();
+      .expand("Responsable")();*/
+    //  console.log(listGuid);
+    const items = await _sp.web.lists.getById(listGuid).items.select()();
+    //.orderBy("Description", true)
+    //.orderBy("Title", true)
 
-    console.log("NewsList Items", items);
+    //console.log("NewsList Items", items);
 
-    setNewsListItems(
-      (await items).map((item: any) => {
-        return {
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          category: item.category,
-          publicationDate: item.publicationDate,
-          responsible: item.responsable,
-          image: item.image.url,
-        };
-      })
-    );
+    return items.map((item: any) => {
+      return {
+        id: item.ID,
+        title: item.Title,
+        description: item.Description,
+        category: item.Category,
+        publicationDate: item.Created,
+        responsible: item.Responsible,
+        image: JSON.parse(item.image),
+      };
+    });
   };
 
   useEffect(() => {
-    console.log("props", props);
-
-    if (props.listGuid && props.listGuid != "") {
-      getNewsListItems;
+    console.log("use effect");
+    // console.log("props", props);
+    if (!listGuid) {
+      return () => console.log("desmontando componente");
     }
-  }, [props]);
+
+    getNews(listGuid)
+      .then((data) => setNews(data))
+      .catch(console.error);
+    return () => console.log("desmontando componente");
+  }, [listGuid]);
+
+  /*useEffect(() => {
+    const clicar = () => console.log("click");
+    window.addEventListener("click", clicar);
+    return () => window.removeEventListener("click", clicar);
+  }, []);*/
+
+  console.log("render componente");
 
   return (
     <>
-      <WebPartTitle
-        displayMode={props.displayMode}
-        title={props.title}
-        updateProperty={props.updateProperty}
-      />
-      {props.listGuid ? (
-        NewsListItems.map((o: INewsList, index: number) => {
-          return (
-            <Accordion key={index} title={o.title} defaultCollapsed={true}>
-              {o.description}
-            </Accordion>
-          );
-        })
-      ) : (
-        <Placeholder
-          iconName="Edit"
-          iconText="Configure your web part"
-          description="Please configure the web part."
-          buttonLabel="Configure"
-          onConfigure={() => props.context.propertyPane.open()}
-        />
-      )}
+      <button onClick={() => console.log("list")}>Lista</button>
+      <button onClick={() => console.log("card")}>Tarjeta</button>
+
+      <ol className="list">
+        {news.map((n) => (
+          <li key={n.id}>
+            {n.title} {n.description}
+          </li>
+        ))}
+      </ol>
     </>
   );
 };
