@@ -31,18 +31,7 @@ export default class NewsListWebPart extends BaseClientSideWebPart<INewsListWebP
     const element: React.ReactElement<INewsListProps> = React.createElement(
       NewsList,
       {
-        description: this.properties.description,
-        isDarkTheme: this._isDarkTheme,
-        environmentMessage: this._environmentMessage,
-        hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        userDisplayName: this.context.pageContext.user.displayName,
         context: this.context,
-        listGuid: this.properties.list,
-        title: this.properties.title,
-        displayMode: this.displayMode,
-        updateProperty: (value: string) => {
-          this.properties.title = value;
-        },
       }
     );
 

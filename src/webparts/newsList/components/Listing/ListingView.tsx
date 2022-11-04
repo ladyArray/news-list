@@ -11,21 +11,44 @@ import { Item } from "@pnp/sp/items";
 import NewsList from "../NewsList";
 import NewsListWebPart from "../../NewsListWebPart";
 import { INewsList } from "../../../../interface";
-
-let news: INewsList[];
+import CardView from "../Card/CardView";
+import {
+  DocumentCard,
+  DocumentCardActivity,
+  DocumentCardTitle,
+  DocumentCardDetails,
+  DocumentCardImage,
+  IDocumentCardStyles,
+  IDocumentCardActivityPerson,
+} from "@fluentui/react/lib/DocumentCard";
 
 export default class ListingView extends React.Component {
+  private news: INewsList[];
+  constructor(props: { news: INewsList[] }) {
+    super(props);
+    this.news = props.news;
+    console.log(props.news);
+  }
+
   render() {
     return (
       <>
-        <div>
-          {news.map((n) => (
-            <li key={n.id}>
-              {n.title}
-              {n.description}
-            </li>
-          ))}
-        </div>
+        <p>Listas</p>
+        {
+          <div className="container">
+            {this.news.map((n) => {
+              return (
+                <ul key={n.id} className="element">
+                  <h1>{`${n.title}`}</h1>
+                  <p>{` ${n.description}`}</p>
+                  <p>{`Categoría:  ${n.category}`}</p>
+                  <p>{`Fecha:  ${n.publicationDate}`}</p>
+                  <p>{`Responsable:  ${n.responsible}`}</p>
+                </ul>
+              );
+            })}
+          </div>
+        }
       </>
     );
   }
