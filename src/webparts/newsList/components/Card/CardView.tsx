@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import cls from "./CardView.module.scss";
 import { escape } from "@microsoft/sp-lodash-subset";
 import { SPFI } from "@pnp/sp";
 import { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ import {
   IDocumentCardStyles,
   IDocumentCardActivityPerson,
 } from "@fluentui/react/lib/DocumentCard";
+import { styled } from "office-ui-fabric-react";
 
 export default class CardView extends React.Component {
   private news: INewsList[];
@@ -33,12 +35,11 @@ export default class CardView extends React.Component {
   render() {
     return (
       <>
-        <p>tarjetas</p>
         {
-          <div className="container">
+          <div className={cls.container}>
             {this.news.map((n) => {
               return (
-                <div key={n.id} className="element">
+                <div key={n.id} className={cls.element}>
                   <h1>{`${n.title}`}</h1>
                   <p>{` ${n.description}`}</p>
                   <p>{`Categoría:  ${n.category}`}</p>

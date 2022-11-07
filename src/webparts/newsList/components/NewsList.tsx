@@ -12,7 +12,8 @@ import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
 import { Item } from "@pnp/sp/items";
 import CardView from "./Card/CardView";
 import ListingView from "./Listing/ListingView";
-
+import { Stack, IStackTokens } from "@fluentui/react";
+import { DefaultButton, PrimaryButton } from "@fluentui/react/lib/Button";
 export default function NewsList(props: INewsListProps): JSX.Element {
   console.log("montando componente");
   console.log(props);
@@ -94,12 +95,14 @@ export default function NewsList(props: INewsListProps): JSX.Element {
         news.length > 0 &&
         (listed ? (
           <section>
-            <button onClick={handleCardClick}>Modo Tarjeta</button>
+            <PrimaryButton onClick={handleCardClick}>
+              Modo Tarjeta
+            </PrimaryButton>
             <CardView {...{ news: news }} />
           </section>
         ) : (
           <section>
-            <button onClick={handleListClick}>Modo Lista</button>
+            <PrimaryButton onClick={handleListClick}>Modo Lista</PrimaryButton>
             <ListingView {...{ news: news }} />
           </section>
         ))}

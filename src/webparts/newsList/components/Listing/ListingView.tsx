@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import cls from "./ListingView.module.scss";
 import { escape } from "@microsoft/sp-lodash-subset";
 import { SPFI } from "@pnp/sp";
 import { useEffect, useState } from "react";
@@ -29,22 +30,20 @@ export default class ListingView extends React.Component {
     this.news = props.news;
     console.log(props.news);
   }
-
   render() {
     return (
       <>
-        <p>Listas</p>
         {
-          <div className="container">
+          <div className={cls.container}>
             {this.news.map((n) => {
               return (
-                <ul key={n.id} className="element">
+                <div key={n.id} className={cls.element}>
                   <h1>{`${n.title}`}</h1>
                   <p>{` ${n.description}`}</p>
                   <p>{`Categoría:  ${n.category}`}</p>
                   <p>{`Fecha:  ${n.publicationDate}`}</p>
                   <p>{`Responsable:  ${n.responsible}`}</p>
-                </ul>
+                </div>
               );
             })}
           </div>

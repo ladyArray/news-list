@@ -32,6 +32,7 @@ export default class NewsListWebPart extends BaseClientSideWebPart<INewsListWebP
       NewsList,
       {
         context: this.context,
+        //        webURL: this.context.pageContext.web.absoluteUrl,
       }
     );
 

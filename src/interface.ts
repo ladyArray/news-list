@@ -3,7 +3,7 @@ export interface INewsList {
   title: string;
   description: string;
   category: string;
-  publicationDate: number;
+  publicationDate: string;
   responsible: string;
   image: string;
 }
