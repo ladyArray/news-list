@@ -12,32 +12,24 @@ import { Item } from "@pnp/sp/items";
 import NewsList from "../NewsList";
 import NewsListWebPart from "../../NewsListWebPart";
 import { INewsList } from "../../../../interface";
-import ListingView from "../Listing/ListingView";
-import {
-  DocumentCard,
-  DocumentCardActivity,
-  DocumentCardTitle,
-  DocumentCardDetails,
-  DocumentCardImage,
-  IDocumentCardStyles,
-  IDocumentCardActivityPerson,
-} from "@fluentui/react/lib/DocumentCard";
-import { styled } from "office-ui-fabric-react";
 
-export default class CardView extends React.Component {
-  private news: INewsList[];
+export default class CardView extends React.Component<any, any> {
+  private searchList: INewsList[];
+  private filterList: INewsList[];
+
   constructor(props: { news: INewsList[] }) {
     super(props);
-    this.news = props.news;
+    this.searchList = props.news;
+    this.filterList = props.news;
     console.log(props.news);
   }
 
-  render() {
+  public render(): JSX.Element {
     return (
       <>
         {
           <div className={cls.container}>
-            {this.news.map((n) => {
+            {this.props.news.map((n: any) => {
               return (
                 <div key={n.id} className={cls.element}>
                   <h1>{`${n.title}`}</h1>

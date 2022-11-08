@@ -1,5 +1,4 @@
 import * as React from "react";
-import styles from "./NewsList.module.scss";
 import { INewsListProps } from "./INewsListProps";
 import { escape } from "@microsoft/sp-lodash-subset";
 import { SPFI } from "@pnp/sp";
@@ -11,6 +10,7 @@ import { Placeholder } from "@pnp/spfx-controls-react/lib/Placeholder";
 import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
 import { Item } from "@pnp/sp/items";
 import CardView from "./Card/CardView";
+import cls from "./NewsList.module.scss";
 import ListingView from "./Listing/ListingView";
 import { Stack, IStackTokens } from "@fluentui/react";
 import { DefaultButton, PrimaryButton } from "@fluentui/react/lib/Button";
@@ -25,6 +25,8 @@ export default function NewsList(props: INewsListProps): JSX.Element {
   const [display, setDisplay] = useState<boolean>(false);
 
   const [news, setNews] = useState<INewsList[]>([]);
+  const [searchList, setSearchList] = useState<INewsList[]>([]);
+  const [filterList, setFilterList] = useState<INewsList[]>([]);
 
   const getNews = async () => {
     /*const items = this._sp.web.lists.getByTitle(this.LIST_NAME).items.select("*", "Responsable/Title", "Responsable/ID").expand("Responsable")().then((value: any) => {
@@ -53,7 +55,8 @@ export default function NewsList(props: INewsListProps): JSX.Element {
         console.log("Noticias: ", elements);
         setNews(elements);
         setDisplay(true);
-
+        setSearchList(value as INewsList[]);
+        setFilterList(value as INewsList[]);
         console.log("Noticias: ", value);
       });
   };
@@ -79,7 +82,6 @@ export default function NewsList(props: INewsListProps): JSX.Element {
 
   const handleListClick = () => {
     setListed(true);
-
     //el setter pasa, el listed almacena
   };
 
@@ -87,22 +89,84 @@ export default function NewsList(props: INewsListProps): JSX.Element {
     setListed(false);
   };
 
-  //  const [listed, setListed] = useState<boolean>(true);
+  const onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const search = e.target.value; //input
+    if (search && search.length > 0) {
+      const newsList = news.filter(
+        (news) =>
+          news.title.toLowerCase().includes(search.toLowerCase()) ||
+          news.description.toLowerCase().includes(search.toLowerCase())
+      );
+      setSearchList(newsList);
+    }
+  };
+
+  const onFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const select = e.target.value; //select
+    if (select === "") {
+      useState({
+        category: select,
+        news: news.filter((news) => {
+          return news.category.indexOf(e.target.value) >= 0;
+        }),
+      });
+    }
+  };
 
   return (
     <>
       {display &&
         news.length > 0 &&
         (listed ? (
-          <section>
-            <PrimaryButton onClick={handleCardClick}>
-              Modo Tarjeta
-            </PrimaryButton>
+          <section className={cls.root}>
+            <div className={cls.header}>
+              <PrimaryButton onClick={handleCardClick} className={cls.button}>
+                Modo Lista
+              </PrimaryButton>
+              <div className={cls.searchContainer}>
+                <input
+                  type="text"
+                  className="form-control"
+                  //value={title}
+                  placeholder="Buscar noticia"
+                  aria-label="Buscar noticia"
+                  aria-describedby="basic-addon2"
+                  onChange={onSearch}
+                />
+                <select onChange={onFilter}>
+                  <option>Todo</option>
+                  <option value="Tecnologia">Tecnologia</option>
+                  <option value="Actualidad">Actualidad</option>
+                  <option value="Economia">Economia</option>
+                </select>
+              </div>
+            </div>
             <CardView {...{ news: news }} />
           </section>
         ) : (
-          <section>
-            <PrimaryButton onClick={handleListClick}>Modo Lista</PrimaryButton>
+          <section className={cls.root}>
+            <div className={cls.header}>
+              <PrimaryButton onClick={handleListClick} className={cls.button}>
+                Modo Tarjeta
+              </PrimaryButton>
+              <div className={cls.searchContainer}>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Buscar noticia"
+                  aria-label="Buscar noticia"
+                  aria-describedby="basic-addon2"
+                  onChange={onSearch}
+                />
+                <select>
+                  <option>All</option>
+                  <option value="Tecnologia">Tecnologia</option>
+                  <option value="Actualidad">Actualidad</option>
+                  <option value="Economia">Economia</option>
+                </select>
+              </div>
+            </div>
             <ListingView {...{ news: news }} />
           </section>
         ))}
