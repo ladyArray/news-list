@@ -77,16 +77,15 @@ export default function NewsList(props: INewsListProps): JSX.Element {
     }*/
 
   useEffect(() => {
-    getNews().catch;
+    getNews().catch(console.error);
   }, []);
 
-  const handleListClick = () => {
-    setListed(true);
-    //el setter pasa, el listed almacena
-  };
+  useEffect(() => {
+    console.log(searchList);
+  }, [searchList]);
 
-  const handleCardClick = () => {
-    setListed(false);
+  const handleClick = () => {
+    setListed((prev) => !prev);
   };
 
   const onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,60 +115,33 @@ export default function NewsList(props: INewsListProps): JSX.Element {
 
   return (
     <>
-      {display &&
-        news.length > 0 &&
-        (listed ? (
-          <section className={cls.root}>
-            <div className={cls.header}>
-              <PrimaryButton onClick={handleCardClick} className={cls.button}>
-                Modo Lista
-              </PrimaryButton>
-              <div className={cls.searchContainer}>
-                <input
-                  type="text"
-                  className="form-control"
-                  //value={title}
-                  placeholder="Buscar noticia"
-                  aria-label="Buscar noticia"
-                  aria-describedby="basic-addon2"
-                  onChange={onSearch}
-                />
-                <select onChange={onFilter}>
-                  <option>Todo</option>
-                  <option value="Tecnologia">Tecnologia</option>
-                  <option value="Actualidad">Actualidad</option>
-                  <option value="Economia">Economia</option>
-                </select>
-              </div>
+      {display && news.length > 0 && (
+        <section className={cls.root}>
+          <div className={cls.header}>
+            <PrimaryButton onClick={handleClick} className={cls.button}>
+              Modo {listed ? "Lista" : "Tarjeta"}
+            </PrimaryButton>
+            <div className={cls.searchContainer}>
+              <input
+                type="text"
+                className="form-control"
+                //value={title}
+                placeholder="Buscar noticia"
+                aria-label="Buscar noticia"
+                aria-describedby="basic-addon2"
+                onChange={onSearch}
+              />
+              <select onChange={onFilter}>
+                <option>Todos</option>
+                <option value="Tecnologia">Tecnologia</option>
+                <option value="Actualidad">Actualidad</option>
+                <option value="Economia">Economia</option>
+              </select>
             </div>
-            <CardView {...{ news: news }} />
-          </section>
-        ) : (
-          <section className={cls.root}>
-            <div className={cls.header}>
-              <PrimaryButton onClick={handleListClick} className={cls.button}>
-                Modo Tarjeta
-              </PrimaryButton>
-              <div className={cls.searchContainer}>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Buscar noticia"
-                  aria-label="Buscar noticia"
-                  aria-describedby="basic-addon2"
-                  onChange={onSearch}
-                />
-                <select>
-                  <option>All</option>
-                  <option value="Tecnologia">Tecnologia</option>
-                  <option value="Actualidad">Actualidad</option>
-                  <option value="Economia">Economia</option>
-                </select>
-              </div>
-            </div>
-            <ListingView {...{ news: news }} />
-          </section>
-        ))}
+          </div>
+          {listed ? <CardView news={news} /> : <ListingView news={news} />}
+        </section>
+      )}
     </>
   );
 }
