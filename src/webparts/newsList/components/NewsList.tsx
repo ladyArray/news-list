@@ -5,6 +5,7 @@ import { SPFI } from "@pnp/sp";
 import { useEffect, useState } from "react";
 import { INewsList } from "../../../interface";
 import { getSP } from "../../../pnpjsConfig";
+import { SearchBox, ISearchBoxStyles } from "@fluentui/react/lib/SearchBox";
 import { Accordion } from "@pnp/spfx-controls-react/lib/Accordion";
 import { Placeholder } from "@pnp/spfx-controls-react/lib/Placeholder";
 import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
@@ -23,11 +24,11 @@ import { Stack, IStackTokens } from "@fluentui/react";
 import { DefaultButton, PrimaryButton } from "@fluentui/react/lib/Button";
 import { TextField } from "office-ui-fabric-react";
 
-const options: { category: string; label: string }[] = [
-  { category: "", label: "Todas" },
-  { category: "Tecnologia", label: "Tecnologia" },
-  { category: "Actualidad", label: "Actualidad" },
-  { category: "Economia", label: "Economia" },
+const options: IDropdownOption<any>[] = [
+  { key: "", text: "Todas" },
+  { key: "Tecnologia", text: "Tecnologia" },
+  { key: "Actualidad", text: "Actualidad" },
+  { key: "Economia", text: "Economia" },
 ];
 
 export default function NewsList(props: INewsListProps): JSX.Element {
@@ -44,7 +45,7 @@ export default function NewsList(props: INewsListProps): JSX.Element {
   //const [searchList, setSearchList] = useState<INewsList[]>([]);
   // const [filterList, setFilterList] = useState<INewsList[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [filter, setFilter] = useState<string>("");
+  const [filter, setFilter] = useState<any>("");
 
   const getNews = async () => {
     /*const items = this._sp.web.lists.getByTitle(this.LIST_NAME).items.select("*", "Responsable/Title", "Responsable/ID").expand("Responsable")().then((value: any) => {
@@ -120,8 +121,18 @@ export default function NewsList(props: INewsListProps): JSX.Element {
     setSearch(search);
   };
 
+  /*filtro que funciona
   const onFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const filter = e.target.value; //select
+    setFilter(filter);
+  };
+*/
+
+  const onFilter = (
+    e: React.FormEvent<HTMLDivElement>,
+    item: IDropdownOption
+  ): void => {
+    const filter = item;
     setFilter(filter);
   };
 
@@ -153,14 +164,16 @@ export default function NewsList(props: INewsListProps): JSX.Element {
 
   const result = React.useMemo(() => {
     console.count("filter");
-
+    console.log(filter);
     let result = news;
     if (filter !== "") {
       //aplicar filtro categoria
       result = result.filter((news) => {
-        return news.category.indexOf(filter) >= 0;
+        return news.category.indexOf(filter.key) >= 0;
       });
     }
+
+    console.log(result);
 
     if (search !== "") {
       //aplicar filtro search
@@ -183,22 +196,21 @@ export default function NewsList(props: INewsListProps): JSX.Element {
               Modo {listed ? "Lista" : "Tarjeta"}
             </PrimaryButton>
             <div className={cls.searchContainer}>
-              <input
-                type="text"
-                className="form-control"
-                //value={title}
-                placeholder="Buscar noticia"
-                aria-label="Buscar noticia"
-                aria-describedby="basic-addon2"
-                onChange={onSearch}
+              <SearchBox placeholder="Buscar noticia" onChange={onSearch} />
+
+              <Dropdown
+                placeholder="Selecciona una opcion"
+                options={options}
+                onChange={onFilter}
               />
-              <select onChange={onFilter} name="categoria">
+
+              {/*<select onChange={onFilter} name="categoria">
                 {options.map((opt) => (
                   <option key={opt.category} value={opt.category}>
                     {opt.label}
                   </option>
                 ))}
-              </select>
+                </select>*/}
             </div>
           </div>
           {listed ? <CardView news={result} /> : <ListingView news={result} />}
