@@ -8,12 +8,28 @@ import { getSP } from "../../../pnpjsConfig";
 import { Accordion } from "@pnp/spfx-controls-react/lib/Accordion";
 import { Placeholder } from "@pnp/spfx-controls-react/lib/Placeholder";
 import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
+import {
+  Dropdown,
+  DropdownMenuItemType,
+  IDropdownOption,
+  IDropdownStyles,
+} from "@fluentui/react/lib/Dropdown";
+
 import { Item } from "@pnp/sp/items";
 import CardView from "./Card/CardView";
 import cls from "./NewsList.module.scss";
 import ListingView from "./Listing/ListingView";
 import { Stack, IStackTokens } from "@fluentui/react";
 import { DefaultButton, PrimaryButton } from "@fluentui/react/lib/Button";
+import { TextField } from "office-ui-fabric-react";
+
+const options: { category: string; label: string }[] = [
+  { category: "", label: "Todas" },
+  { category: "Tecnologia", label: "Tecnologia" },
+  { category: "Actualidad", label: "Actualidad" },
+  { category: "Economia", label: "Economia" },
+];
+
 export default function NewsList(props: INewsListProps): JSX.Element {
   console.log("montando componente");
   console.log(props);
@@ -25,14 +41,15 @@ export default function NewsList(props: INewsListProps): JSX.Element {
   const [display, setDisplay] = useState<boolean>(false);
 
   const [news, setNews] = useState<INewsList[]>([]);
-  const [searchList, setSearchList] = useState<INewsList[]>([]);
-  const [filterList, setFilterList] = useState<INewsList[]>([]);
+  //const [searchList, setSearchList] = useState<INewsList[]>([]);
+  // const [filterList, setFilterList] = useState<INewsList[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const [filter, setFilter] = useState<string>("");
 
   const getNews = async () => {
     /*const items = this._sp.web.lists.getByTitle(this.LIST_NAME).items.select("*", "Responsable/Title", "Responsable/ID").expand("Responsable")().then((value: any) => {
         console.log("Noticias: ",value);
-        this.initializeVariables(value);
-      });*/
+        this.initializeVariables(value);});*/
 
     await _sp.web.lists
       .getByTitle(LIST_NAME)
@@ -55,8 +72,8 @@ export default function NewsList(props: INewsListProps): JSX.Element {
         console.log("Noticias: ", elements);
         setNews(elements);
         setDisplay(true);
-        setSearchList(value as INewsList[]);
-        setFilterList(value as INewsList[]);
+        //setSearchList(value as INewsList[]);
+        // setFilterList(value as INewsList[]);
         console.log("Noticias: ", value);
       });
   };
@@ -80,15 +97,11 @@ export default function NewsList(props: INewsListProps): JSX.Element {
     getNews().catch(console.error);
   }, []);
 
-  useEffect(() => {
-    console.log(searchList);
-  }, [searchList]);
-
   const handleClick = () => {
     setListed((prev) => !prev);
   };
 
-  const onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /* const onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const search = e.target.value; //input
     if (search && search.length > 0) {
@@ -99,19 +112,67 @@ export default function NewsList(props: INewsListProps): JSX.Element {
       );
       setSearchList(newsList);
     }
+  };*/
+
+  const onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const search = e.target.value; //input
+    setSearch(search);
   };
 
   const onFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const select = e.target.value; //select
-    if (select === "") {
-      useState({
-        category: select,
-        news: news.filter((news) => {
-          return news.category.indexOf(e.target.value) >= 0;
-        }),
+    const filter = e.target.value; //select
+    setFilter(filter);
+  };
+
+  // const filterResult = () => {
+  //   console.count("filter");
+
+  //   let result = news;
+  //   if (filter !== "") {
+  //     //aplicar filtro categoria
+  //     result = result.filter((news) => {
+  //       return news.category.indexOf(filter) >= 0;
+  //     });
+  //   }
+
+  //   if (search !== "") {
+  //     //aplicar filtro search
+  //     result = result.filter(
+  //       (news) =>
+  //         news.title.toLowerCase().includes(search.toLowerCase()) ||
+  //         news.description.toLowerCase().includes(search.toLowerCase())
+  //     );
+  //   }
+
+  //   return result;
+  // };
+
+  // const result = filterResult();
+  //useCallback es como useMemo pero con una funcion
+
+  const result = React.useMemo(() => {
+    console.count("filter");
+
+    let result = news;
+    if (filter !== "") {
+      //aplicar filtro categoria
+      result = result.filter((news) => {
+        return news.category.indexOf(filter) >= 0;
       });
     }
-  };
+
+    if (search !== "") {
+      //aplicar filtro search
+      result = result.filter(
+        (news) =>
+          news.title.toLowerCase().includes(search.toLowerCase()) ||
+          news.description.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    return result;
+  }, [news, filter, search]); //si cambia alguno de estos elementos del array de dependencia, se recalcula, si no, lo evita
 
   return (
     <>
@@ -131,15 +192,16 @@ export default function NewsList(props: INewsListProps): JSX.Element {
                 aria-describedby="basic-addon2"
                 onChange={onSearch}
               />
-              <select onChange={onFilter}>
-                <option>Todos</option>
-                <option value="Tecnologia">Tecnologia</option>
-                <option value="Actualidad">Actualidad</option>
-                <option value="Economia">Economia</option>
+              <select onChange={onFilter} name="categoria">
+                {options.map((opt) => (
+                  <option key={opt.category} value={opt.category}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
-          {listed ? <CardView news={news} /> : <ListingView news={news} />}
+          {listed ? <CardView news={result} /> : <ListingView news={result} />}
         </section>
       )}
     </>

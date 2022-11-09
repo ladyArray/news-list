@@ -14,13 +14,9 @@ import NewsListWebPart from "../../NewsListWebPart";
 import { INewsList } from "../../../../interface";
 
 export default class CardView extends React.Component<any, any> {
-  private searchList: INewsList[];
-  private filterList: INewsList[];
-
   constructor(props: { news: INewsList[] }) {
     super(props);
-    this.searchList = props.news;
-    this.filterList = props.news;
+
     console.log(props.news);
   }
 
