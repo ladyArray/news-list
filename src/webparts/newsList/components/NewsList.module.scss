@@ -1,14 +1,27 @@
 .root {
   .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1%;
-    .button {
-      align-items: flex-start;
+    margin: 1.5%;
+    padding: 1.5%;
+    .upper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .button {
+        display: flex;
+        align-items: flex-start;
+      }
+      .searchContainer {
+        display: flex;
+        align-items: flex-end;
+        margin-right: 1%;
+      }
     }
-    .searchContainer {
-      align-items: flex-end;
+    .bottom {
+      display: flex;
+    }
+    .filterContainer {
+      display: inline-block;
+      align-items: center;
     }
   }
 }

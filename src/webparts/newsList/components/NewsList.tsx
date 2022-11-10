@@ -15,12 +15,16 @@ import {
   IDropdownOption,
   IDropdownStyles,
 } from "@fluentui/react/lib/Dropdown";
+import {
+  ChoiceGroup,
+  IChoiceGroupOption,
+} from "@fluentui/react/lib/ChoiceGroup";
 
 import { Item } from "@pnp/sp/items";
 import CardView from "./Card/CardView";
 import cls from "./NewsList.module.scss";
 import ListingView from "./Listing/ListingView";
-import { Stack, IStackTokens } from "@fluentui/react";
+import { Stack, IStackTokens, MarqueeSelection } from "@fluentui/react";
 import { DefaultButton, PrimaryButton } from "@fluentui/react/lib/Button";
 import { TextField } from "office-ui-fabric-react";
 
@@ -29,6 +33,25 @@ const options: IDropdownOption<any>[] = [
   { key: "Tecnologia", text: "Tecnologia" },
   { key: "Actualidad", text: "Actualidad" },
   { key: "Economia", text: "Economia" },
+];
+
+const checkOptions: IChoiceGroupOption[] = [
+  { key: "", text: "Todos", styles: { field: { marginLeft: "3px" } } },
+  {
+    key: "Isabel Faro Medina",
+    text: "Isabel Faro Medina",
+    styles: { field: { marginLeft: "3px" } },
+  },
+  {
+    key: "Javier Arbiol",
+    text: "Javier Arbiol",
+    styles: { field: { marginLeft: "3px" } },
+  },
+  {
+    key: "Beatriz Garcia",
+    text: "Beatriz Garcia",
+    styles: { field: { marginLeft: "3px", marginBotton: "3px" } },
+  },
 ];
 
 export default function NewsList(props: INewsListProps): JSX.Element {
@@ -46,6 +69,7 @@ export default function NewsList(props: INewsListProps): JSX.Element {
   // const [filterList, setFilterList] = useState<INewsList[]>([]);
   const [search, setSearch] = useState<string>("");
   const [filter, setFilter] = useState<any>("");
+  const [check, setCheck] = useState<any>("");
 
   const getNews = async () => {
     /*const items = this._sp.web.lists.getByTitle(this.LIST_NAME).items.select("*", "Responsable/Title", "Responsable/ID").expand("Responsable")().then((value: any) => {
@@ -136,6 +160,17 @@ export default function NewsList(props: INewsListProps): JSX.Element {
     setFilter(filter);
   };
 
+  // const [check, setCheck] = useState<string>("");
+  //checkOption, key, text
+
+  const onCheck = (
+    e: React.FormEvent<HTMLInputElement>,
+    option: IChoiceGroupOption
+  ): void => {
+    const check = option;
+    setCheck(check);
+  };
+
   // const filterResult = () => {
   //   console.count("filter");
 
@@ -163,6 +198,7 @@ export default function NewsList(props: INewsListProps): JSX.Element {
   //useCallback es como useMemo pero con una funcion
 
   const result = React.useMemo(() => {
+    //Skippea del render
     console.count("filter");
     console.log(filter);
     let result = news;
@@ -184,26 +220,44 @@ export default function NewsList(props: INewsListProps): JSX.Element {
       );
     }
 
+    if (check !== "") {
+      //aplicar filtro autor
+      result = result.filter((news) => {
+        return news.responsible.indexOf(check.key) >= 0;
+      });
+    }
+
     return result;
-  }, [news, filter, search]); //si cambia alguno de estos elementos del array de dependencia, se recalcula, si no, lo evita
+  }, [news, filter, search, check]); //si cambia alguno de estos elementos del array de dependencia, se recalcula, si no, skippea
 
   return (
     <>
       {display && news.length > 0 && (
         <section className={cls.root}>
           <div className={cls.header}>
-            <PrimaryButton onClick={handleClick} className={cls.button}>
-              Modo {listed ? "Lista" : "Tarjeta"}
-            </PrimaryButton>
-            <div className={cls.searchContainer}>
-              <SearchBox placeholder="Buscar noticia" onChange={onSearch} />
+            <div className={cls.upper}>
+              <PrimaryButton onClick={handleClick} className={cls.button}>
+                Modo {listed ? "Lista" : "Tarjeta"}
+              </PrimaryButton>
+              <div className={cls.searchContainer}>
+                <SearchBox placeholder="Buscar noticia" onChange={onSearch} />
 
-              <Dropdown
-                placeholder="Selecciona una opcion"
-                options={options}
-                onChange={onFilter}
+                <Dropdown
+                  placeholder="Selecciona una opcion"
+                  options={options}
+                  onChange={onFilter}
+                />
+              </div>
+            </div>
+          </div>
+          <div className={cls.bottom}>
+            <div className={cls.filterContainer}>
+              <ChoiceGroup
+                selectedKey={check.key}
+                styles={{ flexContainer: { display: "flex" } }}
+                options={checkOptions}
+                onChange={onCheck}
               />
-
               {/*<select onChange={onFilter} name="categoria">
                 {options.map((opt) => (
                   <option key={opt.category} value={opt.category}>

@@ -1,5 +1,21 @@
 import * as React from "react";
 
+import { getRTL } from "@fluentui/react/lib/Utilities";
+import { TextField } from "@fluentui/react/lib/TextField";
+import { Image, ImageFit } from "@fluentui/react/lib/Image";
+import { Icon } from "@fluentui/react/lib/Icon";
+import { List } from "@fluentui/react/lib/List";
+import {
+  ITheme,
+  mergeStyleSets,
+  getTheme,
+  getFocusStyle,
+} from "@fluentui/react/lib/Styling";
+import { FocusZone } from "@fluentui/react/lib/FocusZone";
+
+import { IRectangle } from "@fluentui/react/lib/Utilities";
+
+import { useConst } from "@fluentui/react-hooks";
 import cls from "./ListingView.module.scss";
 import { escape } from "@microsoft/sp-lodash-subset";
 import { SPFI } from "@pnp/sp";
@@ -20,6 +36,7 @@ export default class ListingView extends React.Component<any, any> {
     console.log(props.news);
   }
 
+  /*
   public render(): JSX.Element {
     return (
       <>
@@ -41,4 +58,61 @@ export default class ListingView extends React.Component<any, any> {
       </>
     );
   }
+*/
+
+  public render(): JSX.Element {
+    return (
+      <>
+        {this.props.news.map((n: any) => (
+          <div className={this.classNames.itemCell} data-is-focusable={true}>
+            <div className={this.classNames.itemContent} key={n.id}>
+              <div className={this.classNames.itemName}>{n.title}</div>
+              <div className={this.classNames.itemName}>
+                Categoría: {n.category}
+              </div>
+              <div className={this.classNames.itemIndex}>
+                Fecha: {n.publicationDate}
+              </div>
+              <div>{n.description}</div>
+            </div>
+          </div>
+        ))}
+      </>
+    );
+  }
+
+  //const theme: ITheme = getTheme();
+  //const { palette, semanticColors, fonts } = theme;
+
+  classNames = mergeStyleSets({
+    itemCell: [
+      //getFocusStyle(theme, { inset: -1 }),
+      {
+        minHeight: 54,
+        padding: 10,
+        boxSizing: "border-box",
+        borderBottom: `1px solid`,
+        display: "flex",
+        selectors: {},
+      },
+    ],
+    itemImage: {
+      flexShrink: 0,
+    },
+    itemContent: {
+      marginLeft: 10,
+      overflow: "hidden",
+      flexGrow: 1,
+    },
+    itemName: [
+      {
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
+    ],
+    itemIndex: {
+      marginBottom: 10,
+    },
+  });
 }
