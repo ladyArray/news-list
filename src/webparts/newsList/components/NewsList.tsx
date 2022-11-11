@@ -64,6 +64,8 @@ export default function NewsList(props: INewsListProps): JSX.Element {
   const [listed, setListed] = useState<boolean>(true);
   const [display, setDisplay] = useState<boolean>(false);
 
+  const [filteredNews, setFilteredNews] = useState<INewsList[]>([]);
+
   const [news, setNews] = useState<INewsList[]>([]);
   //const [searchList, setSearchList] = useState<INewsList[]>([]);
   // const [filterList, setFilterList] = useState<INewsList[]>([]);
@@ -96,6 +98,7 @@ export default function NewsList(props: INewsListProps): JSX.Element {
         });
         console.log("Noticias: ", elements);
         setNews(elements);
+        setFilteredNews(elements);
         setDisplay(true);
         //setSearchList(value as INewsList[]);
         // setFilterList(value as INewsList[]);
@@ -171,33 +174,7 @@ export default function NewsList(props: INewsListProps): JSX.Element {
     setCheck(check);
   };
 
-  // const filterResult = () => {
-  //   console.count("filter");
-
-  //   let result = news;
-  //   if (filter !== "") {
-  //     //aplicar filtro categoria
-  //     result = result.filter((news) => {
-  //       return news.category.indexOf(filter) >= 0;
-  //     });
-  //   }
-
-  //   if (search !== "") {
-  //     //aplicar filtro search
-  //     result = result.filter(
-  //       (news) =>
-  //         news.title.toLowerCase().includes(search.toLowerCase()) ||
-  //         news.description.toLowerCase().includes(search.toLowerCase())
-  //     );
-  //   }
-
-  //   return result;
-  // };
-
-  // const result = filterResult();
-  //useCallback es como useMemo pero con una funcion
-
-  const result = React.useMemo(() => {
+  useEffect(() => {
     //Skippea del render
     console.count("filter");
     console.log(filter);
@@ -227,8 +204,9 @@ export default function NewsList(props: INewsListProps): JSX.Element {
       });
     }
 
-    return result;
-  }, [news, filter, search, check]); //si cambia alguno de estos elementos del array de dependencia, se recalcula, si no, skippea
+    //return result;
+    setFilteredNews(result);
+  }, [filter, search, check]); //si cambia alguno de estos elementos del array de dependencia, se recalcula, si no, skippea
 
   return (
     <>
@@ -241,7 +219,6 @@ export default function NewsList(props: INewsListProps): JSX.Element {
               </PrimaryButton>
               <div className={cls.searchContainer}>
                 <SearchBox placeholder="Buscar noticia" onChange={onSearch} />
-
                 <Dropdown
                   placeholder="Selecciona una opcion"
                   options={options}
@@ -258,16 +235,13 @@ export default function NewsList(props: INewsListProps): JSX.Element {
                 options={checkOptions}
                 onChange={onCheck}
               />
-              {/*<select onChange={onFilter} name="categoria">
-                {options.map((opt) => (
-                  <option key={opt.category} value={opt.category}>
-                    {opt.label}
-                  </option>
-                ))}
-                </select>*/}
             </div>
           </div>
-          {listed ? <CardView news={result} /> : <ListingView news={result} />}
+          {listed ? (
+            <CardView news={filteredNews} />
+          ) : (
+            <ListingView news={filteredNews} />
+          )}
         </section>
       )}
     </>

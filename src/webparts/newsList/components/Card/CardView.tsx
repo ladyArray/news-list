@@ -33,32 +33,6 @@ export default class CardView extends React.Component<any, any> {
     console.log(props.news);
   }
 
-  /*
-  public render(): JSX.Element {
-    return (
-      <>
-        {
-          <div className={cls.container}>
-            {this.props.news.map((n: any) => {
-              return (
-                <div key={n.id} className={cls.element}>
-                  <h1>{`${n.title}`}</h1>
-                  <p>{` ${n.description}`}</p>
-                  <p>{`Categoría:  ${n.category}`}</p>
-                  <p>{`Fecha:  ${n.publicationDate}`}</p>
-                  <p>{`Responsable:  ${n.responsible}`}</p>
-                </div>
-              );
-            })}
-          </div>
-        }
-      </>
-    );
-  }
-}*/
-
-  //responsibleArray: IDocumentCardActivityPerson[] = this.props.news.responsible;
-
   public render(): JSX.Element {
     return (
       <>
@@ -71,7 +45,12 @@ export default class CardView extends React.Component<any, any> {
                     <DocumentCardDetails>
                       <DocumentCardTitle title={n.title} />
                       <DocumentCardActivity
-                        people={n.responsible} //es una array ??  people={people.slice(6)}
+                        people={[
+                          {
+                            name: `${n.responsible}`,
+                            profileImageSrc: "",
+                          },
+                        ]}
                         activity={n.publicationDate}
                       />
                     </DocumentCardDetails>

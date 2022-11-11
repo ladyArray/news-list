@@ -72,6 +72,9 @@ export default class ListingView extends React.Component<any, any> {
               </div>
               <div className={this.classNames.itemIndex}>
                 Fecha: {n.publicationDate}
+                <div className={this.classNames.itemName}>
+                  Responsable: {n.responsible}
+                </div>
               </div>
               <div>{n.description}</div>
             </div>

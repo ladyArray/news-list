@@ -3,17 +3,14 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  background-color: "[theme: themePrimary]";
+  //background-color: "[theme: themePrimary]";
   flex-direction: row;
+  justify-content: center;
   color: rgb(0, 8, 122);
 
   .element {
     display: flex;
-    align-items: baseline;
-    justify-content: center;
-    flex-direction: row;
-
-    margin: 1rem;
+    margin: 0.5rem;
     h1 {
       font-size: 1.2em;
     }
